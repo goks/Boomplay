@@ -31,30 +31,45 @@ def startSend(destinationSocket,filename):
 
 	print("Sending file . . .")
 	while c:
-		destinationSocket.send(c)						# Sends data to client	   
+		destinationSocket.send(c)			# Sends data to client	   
 		c = f.read(1024)
 		count+=1
 		showProgress(count*1024, size)
-	destinationSocket.send("EOF")	
+	# destinationSocket.send("EOF")	
 	print("Transfer complete")
 
 def startReceive(destinationSocket,filename):
 	f = open (filename,"wb")
-	size=destinationSocket.recv(10).split("\n")[0]
+	size=int(destinationSocket.recv(10).split("\n")[0])
+	print "Size: ",size
 	showProgress(0, size)
-	count = 1
+	# count = 1
 	print "waiting for file . . ."
-	partFile=destinationSocket.recv(1024)
+	fileContent=destinationSocket.recv(1024)
 	# Receives data upto 1024 bytes and stores in variables msg
-	showProgress(count*1024, size)
-
-	while partFile != "EOF":
+	showProgress(len(fileContent), size)
+	partFile = ""
+	waste = ""
+	while len(fileContent)<size:
 		# print partFile
-		f.write(partFile)
-		count+=1
-		showProgress(count*1024, size)
-		partFile=destinationSocket.recv(1024) 
-	print("Transfer complete")		  
+		# print len(fileContent),type(size),len(fileContent)<size
+		fileContent += partFile
+		# count+=1
+		showProgress(len(fileContent), size)
+
+		buff = size-len(fileContent)
+		if(buff > 1024):
+			buff = 1024
+		print "BUFF: ",buff	
+		partFile=destinationSocket.recv(buff) 
+	if(len(fileContent) == size):
+		print "RECEIVE MATCH"
+	else:
+		waste = fileContent[size:]
+		fileContent = fileContent[:size]
+		print waste
+	f.write(fileContent)
+	print("Transfer complete")
 	print(filename + " created.")
 	f.close()
 
@@ -95,7 +110,7 @@ def playMP3(filedes):
 	#Reduce the volume to 70%
 	player.audio_set_volume(100)
 	player.play()
-	time.sleep(10)
+	time.sleep(90)
 	# p.play()
 
 def msgParser( socketdir ):
@@ -107,7 +122,7 @@ def msgParser( socketdir ):
 			msg=socketdir.recv(100)
 			if not msg:
 				continue
-			print "recvd: ",msg,"EOF"
+			print "recvd: ",msg
 			if msg == "beginplay\n":
 				playMP3("final.mp3")
 			if msg == "quit\n":
