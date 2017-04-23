@@ -60,7 +60,7 @@ def startReceive(destinationSocket,filename):
 		buff = size-len(fileContent)
 		if(buff > 1024):
 			buff = 1024
-		print "BUFF: ",buff	
+		# print "BUFF: ",buff	
 		partFile=destinationSocket.recv(buff) 
 	if(len(fileContent) == size):
 		print "RECEIVE MATCH"
@@ -118,15 +118,21 @@ def msgParser( socketdir ):
 	print "checking socket"
 	while True:
 		try:
-			time.sleep(1)
-			msg=socketdir.recv(100)
-			if not msg:
-				continue
-			print "recvd: ",msg
-			if msg == "beginplay\n":
-				playMP3("final.mp3")
-			if msg == "quit\n":
-				exit()
+			msgs = socketdir.recv(100)
+			msgs = msgs.split('\n')
+			for msg in msgs:
+				if not msg:
+					continue
+				print "recvd: ",msg
+				if msg == "beginplay":
+					pass
+				elif msg == "quit":
+					exit()
+				else:
+					while( int(time.time()) != int(msg) ):
+						time.sleep(0.1)
+						continue
+					playMP3("final.mp3")
 		except KeyboardInterrupt:
 			print "Quitting!!!"
 			break
@@ -138,6 +144,11 @@ def msgSender( socketdir ):
 	except Exception as e:
 		print e
 	finally:
+		t = int(time.time()) + 10
+		socketdir.send(str(t) + "\n")
+		while( int(time.time()) != t ):
+			time.sleep(0.1)
+			continue
 		playMP3("test.mp3")
 		time.sleep(4)
 		print "sending quit"
