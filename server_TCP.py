@@ -1,8 +1,8 @@
-# BOOmY Server Code
+# BOOmPlaY Server Code
 from socket import * 
 import coreModule as core 
  
-HOST="127.0.0.1"               
+HOST="192.168.1.103"               
 PORT=4446             
  
 
