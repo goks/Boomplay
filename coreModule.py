@@ -110,7 +110,7 @@ def playMP3(filedes):
 	#Reduce the volume to 70%
 	player.audio_set_volume(100)
 	player.play()
-	time.sleep(90)
+	time.sleep(5)
 	# p.play()
 
 def msgParser( socketdir ):
@@ -124,14 +124,16 @@ def msgParser( socketdir ):
 				if not msg:
 					continue
 				print "recvd: ",msg
-				if msg == "beginplay":
-					pass
+				if msg == "beginsync":
+					print str(time.time())
+					t = str(time.time()*100)
+					socketdir.send(t)
 				elif msg == "quit":
 					exit()
 				else:
-					while( int(time.time()) != int(msg) ):
-						time.sleep(0.1)
-						continue
+					# while( int(time.time()) != int(msg) ):
+						# time.sleep(0.1)
+						# continue
 					playMP3("final.mp3")
 		except KeyboardInterrupt:
 			print "Quitting!!!"
@@ -140,15 +142,31 @@ def msgParser( socketdir ):
 def msgSender( socketdir ):
 	try:
 		print "sending beginplay"
-		socketdir.send("beginplay\n")
+		socketdir.send("beginsync\n")
+		senderTime = time.time()
+		ayachaTime = float(socketdir.recv(13))*1000000000
+		receivedtime = time.time()
+		roundtime = receivedtime - senderTime
+		appuratheCurrentTime = roundtime/2 + ayachaTime
+
+		print "receiverTime", ayachaTime
+		print "senderTime", senderTime
+		print "appuratheCurrentTime", appuratheCurrentTime
+
+		delay = appuratheCurrentTime - senderTime
+
+		print "delay", delay
+
 	except Exception as e:
 		print e
 	finally:
-		t = int(time.time()) + 10
-		socketdir.send(str(t) + "\n")
-		while( int(time.time()) != t ):
-			time.sleep(0.1)
-			continue
+		# t = int(time.time()) + 10
+		# socketdir.send(str(t) + "\n")
+		# while( int(time.time()) != t ):
+			# time.sleep(0.1)
+			# continue
+		socketdir.send("beginplay")
+		time.sleep(delay)
 		playMP3("test.mp3")
 		time.sleep(4)
 		print "sending quit"

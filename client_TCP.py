@@ -2,7 +2,7 @@
 
 import coreModule as core 
  
-HOST="192.168.1.101"               
+HOST="192.168.1.100"               
 PORT=4446
 
 def main():
