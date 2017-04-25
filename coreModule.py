@@ -1,3 +1,7 @@
+#TODO
+#GUI
+#Buffering
+
 from socket import *
 import vlc
 import time
@@ -159,11 +163,11 @@ def msgSender( socketdir ):
 		# print "appuratheCurrentTime", appuratheCurrentTime
 		print "roundtime/2", roundtime/2
 
-		delay = roundtime/2 - 0.01
+		delay = roundtime/2 - 0.02
 
-		# print "delay", delay
-		# import math
-		# delay = abs(delay)
+		print "delay", delay
+		import math
+		delay = abs(delay)
 	except Exception as e:
 		print e
 	finally:
