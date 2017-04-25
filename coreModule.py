@@ -130,11 +130,16 @@ def msgParser( socketdir ):
 					socketdir.send(t)
 				elif msg == "quit":
 					exit()
+				elif msg =="beginplay":				
+					playMP3("final.mp3")
 				else:
+					pass
+					# ayachaTime = float(socketdir.recv(13))*1000000000
+					# print ayachaTime
+					# if (ayachaTime<0)
 					# while( int(time.time()) != int(msg) ):
 						# time.sleep(0.1)
 						# continue
-					playMP3("final.mp3")
 		except KeyboardInterrupt:
 			print "Quitting!!!"
 			break
@@ -144,24 +149,26 @@ def msgSender( socketdir ):
 		print "sending beginplay"
 		socketdir.send("beginsync\n")
 		senderTime = time.time()
-		ayachaTime = float(socketdir.recv(13))*1000000000
+		ayachaTime = socketdir.recv(13)
 		receivedtime = time.time()
 		roundtime = receivedtime - senderTime
-		appuratheCurrentTime = roundtime/2 + ayachaTime
+		# appuratheCurrentTime = roundtime/2 + ayachaTime
 
-		print "receiverTime", ayachaTime
+		# print "receiverTime", ayachaTime
 		print "senderTime", senderTime
-		print "appuratheCurrentTime", appuratheCurrentTime
+		# print "appuratheCurrentTime", appuratheCurrentTime
+		print "roundtime/2", roundtime/2
 
-		delay = appuratheCurrentTime - senderTime
+		delay = roundtime/2 - 0.01
 
-		print "delay", delay
-
+		# print "delay", delay
+		# import math
+		# delay = abs(delay)
 	except Exception as e:
 		print e
 	finally:
 		# t = int(time.time()) + 10
-		# socketdir.send(str(t) + "\n")
+		# socketdir.send(str(delay*100))
 		# while( int(time.time()) != t ):
 			# time.sleep(0.1)
 			# continue
