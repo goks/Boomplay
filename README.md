@@ -3,8 +3,8 @@ Play musicfiles concurrently in all the systems in a local network
 
 ###### ToDo
 
-Gui
+- [x] Gui
 
-Buffering
+- [ ] Buffering
 
-Multi-Play (>2)
+- [ ] Multi-Play (>2)
