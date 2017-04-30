@@ -1,0 +1,281 @@
+#:kivy 1.0.9
+
+<TabbedScreen>:
+	# canvas.before:
+	# 	Color:
+	# 		rgba: 0.9,0.2, 0.4, 1
+	# 	Rectangle:
+	# 		pos: self.pos
+	# 		size: self.size
+	TabbedPanel:
+		do_default_tab: False
+		padding: 5
+		canvas.before:
+			Color:
+				rgba: 0.8,0.8,0.8,1
+			Rectangle:
+				pos: self.pos
+				size: self.size	
+			# BorderImage
+			# 	pos: self.x - 50, self.y - 50
+			# 	size: self.width + 100, self.height + 100
+			# 	source: 'borderimage.jpg'	
+
+	# ******************Server Screen******************
+
+
+		TabbedPanelItem:
+			text: 'Server'
+			
+			BoxLayout:
+				orientation: "vertical"
+				size_hint: 1,1
+
+				BoxLayout:
+					orientation: "horizontal"
+					size_hint: 1,0.3
+					padding: 10
+					canvas.before:
+						Color:
+							rgba: 0.9,0.9,0.9,1
+						Rectangle:
+							pos: self.pos
+							size: self.size
+					BoxLayout:
+						orientation: 'vertical'
+						size_hint_x: 0.7
+						spacing: 5
+						size_hint_y: 1
+						# padding: 20
+
+						BoxLayout:
+							orientation: 'horizontal'
+							size_hint_x: 1
+							size_hint_y: 0.5
+
+							Label:
+								text: "IP: "
+								size_hint: 0.3, 0.5
+								canvas.before:
+									Color:
+										rgba: 0.5,0.5,0.5,1
+									Rectangle:
+										pos: self.pos
+										size: self.size
+							TextInput:
+								size_hint: 0.7, 0.5
+								multiline: False
+								# size: 200,45
+								id: serverIp
+								font_size: 20
+						BoxLayout:
+							orientation: 'horizontal'
+							size_hint_x: 1
+							size_hint_y: 0.5
+							spacing: 5
+
+							Label:
+								size_hint: 0.3, 0.5
+								text:"Port: "
+								canvas.before:
+									Color:
+										rgba:0.5,0.5,0.5,1
+									Rectangle:
+										pos: self.pos
+										size: self.size
+
+							TextInput:
+								size_hint: 0.3, 0.5
+								multiline: False
+								# size: 200,45
+								text: "4446"
+								id: serverPort
+								font_size: 20
+							Button:
+								size_hint: 0.4, 0.5
+								text: "Connect"
+								on_press: root.beginServerConn()
+								id: serverConnectBtn
+									
+					BoxLayout:
+						orientation: 'vertical'
+						size_hint_x: 0.3
+						size_hint_y: 1
+					
+						
+						
+				BoxLayout:
+					orientation: "vertical"
+					size_hint: 1,0.7
+					# padding: 10
+					spacing: 5
+					# canvas.before:
+					# 	Color:
+					# 		rgba: 0.4,0.1, 0.4, 1
+					# 	Rectangle:
+					# 		pos: self.pos
+					# 		size: self.size
+					TextInput:
+						size_hint: 1, 0.5
+						multiline: True
+						readonly: True
+						text: "**********SERVER RUN**********"
+						id: serverMessageBox
+					BoxLayout:
+						orientation: "horizontal"
+						size_hint: 1,0.1
+						Button:
+							size_hint:0.1,1
+							id: "rewind_button"
+							# border: 30,30,30,30
+							background_normal: "icons/rewind.png"
+							background_down: "icons/forward.png"		
+						Button:
+							size_hint:0.1,1
+							id: "play_button"
+							# border: 30,30,30,30
+							background_normal: "icons/play.png"
+							background_down: "icons/pause.png"
+						Button:
+							size_hint:0.1,1
+							id: "pause_button"
+							# border: 30,30,30,30
+							background_normal: "icons/pause.png"
+							background_down: "icons/play.png"
+						Button:
+							size_hint:0.1,1
+							id: "forward_button"
+							# border: 30,30,30,30
+							background_normal: "icons/forward.png"
+							background_down: "icons/rewind.png"
+						BoxLayout:
+							orientation:"vertical"
+							size_hint: 0.6,1
+
+		# ******************Client Screen******************
+
+		TabbedPanelItem:
+			text: "Client"							
+			BoxLayout:
+				orientation: "vertical"
+				size_hint: 1,1
+
+				BoxLayout:
+					orientation: "horizontal"
+					size_hint: 1,0.3
+					padding: 10
+					canvas.before:
+						Color:
+							rgba: 0.9,0.9,0.9,1
+						Rectangle:
+							pos: self.pos
+							size: self.size
+					BoxLayout:
+						orientation: 'vertical'
+						size_hint_x: 0.7
+						size_hint_y: 1
+						# padding: 20
+						spacing: 5
+
+
+						BoxLayout:
+							orientation: 'horizontal'
+							size_hint_x: 1
+							size_hint_y: 0.5
+
+							Label:
+								text: "IP: "
+								size_hint: 0.3, 0.5
+								canvas.before:
+									Color:
+										rgba: 0.5,0.5,0.5,1
+									Rectangle:
+										pos: self.pos
+										size: self.size
+							TextInput:
+								size_hint: 0.7, 0.5
+								multiline: False
+								# size: 200,45
+								font_size: 20
+						BoxLayout:
+							orientation: 'horizontal'
+							size_hint_x: 1
+							size_hint_y: 0.5
+							spacing: 5
+
+							Label:
+								size_hint: 0.3, 0.5
+								text:"Port: "
+								canvas.before:
+									Color:
+										rgba: 0.5,0.5,0.5,1
+									Rectangle:
+										pos: self.pos
+										size: self.size
+							TextInput:
+								size_hint: 0.3, 0.5
+								multiline: False
+								# size: 200,45
+								text: '4446'
+								font_size: 20
+							Button:
+								size_hint: 0.4, 0.5
+								text: "Start Listening"
+								id: listenClientBtn
+								on_press: root.beginClientConn()
+					BoxLayout:
+						orientation: 'vertical'
+						size_hint_x: 0.3
+						size_hint_y: 1
+
+				BoxLayout:
+					orientation: "vertical"
+					size_hint: 1,0.7
+					# padding: 10
+					spacing: 5
+					# canvas.before:
+					# 	Color:
+					# 		rgba: 0.4,0.1, 0.4, 1
+					# 	Rectangle:
+					# 		pos: self.pos
+					# 		size: self.size
+					TextInput:
+						size_hint: 1, 0.5
+						multiline: True
+						readonly: True
+						text: "**********CLIENT RUN**********"
+						id: clientMessageBox
+					BoxLayout:
+						orientation: "horizontal"
+						size_hint: 1,0.1
+						Button:
+							size_hint:0.1,1
+							id: "rewind_button"
+							# border: 30,30,30,30
+							background_normal: "icons/rewind.png"
+							background_down: "icons/forward.png"		
+						Button:
+							size_hint:0.1,1
+							id: "play_button"
+							# border: 30,30,30,30
+							background_normal: "icons/play.png"
+							background_down: "icons/pause.png"
+						Button:
+							size_hint:0.1,1
+							id: "pause_button"
+							# border: 30,30,30,30
+							background_normal: "icons/pause.png"
+							background_down: "icons/play.png"
+						Button:
+							size_hint:0.1,1
+							id: "forward_button"
+							# border: 30,30,30,30
+							background_normal: "icons/forward.png"
+							background_down: "icons/rewind.png"
+						BoxLayout:
+							orientation:"vertical"
+							size_hint: 0.6,1
+
+					
+						
+						

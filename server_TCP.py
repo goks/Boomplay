@@ -2,18 +2,9 @@
 from socket import * 
 import coreModule as core 
  
-HOST="192.168.1.100"               
-PORT=4446             
- 
-
-
-
-
-def main():
-    serverSocket,clientSocket = core.createSocket(HOST, PORT)
-    core.startSend(clientSocket, "test.mp3")
+def beginConnection(HOST, PORT,callback):
+    serverSocket,clientSocket = core.createSocket(HOST, PORT, callback)
+    core.startSend(clientSocket, "test.mp3", callback)
     # serverSocket,clientSocket = core.createSocket(HOST, PORT)
-    core.msgSender( clientSocket )
+    core.msgSender( clientSocket,callback )
     core.closeSocket( serverSocket )
-
-main()  
