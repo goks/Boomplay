@@ -125,22 +125,25 @@ def createSocketStream(host, port):
 
 def playMP3(filedes, callback, type):
 	callback("Playing " + filedes, type)
-	instance = vlc.Instance()
-	player = instance.media_player_new()
+	# instance = vlc.Instance()
+	player = vlc.MediaPlayer()
+	player.set_mrl(filedes)
+	player.play()
+	time.sleep(15)
+	player.pause()
+	callback("software volume: "+audio_get_volume, type)
 	# if sys.platform == 'win32':
 	#			 player.set_hwnd(self.window.handle)
 	#		 else:
 	#			 player.set_xwindow(self.window.xid)
-	media = instance.media_new(filedes)
-	player.set_media(media)
+	# media = instance.media_new(filedes)
+	# player.set_media(media)
 	# p = vlc.MediaPlayer(filedes)
 		#set the player position to be 50% in
-	player.set_position(50)
+	# player.set_position(50)
 
 	#Reduce the volume to 70%
-	player.audio_set_volume(100)
-	player.play()
-	time.sleep(15)
+	# player.audio_set_volume(100)
 	# p.play()
 
 def msgParser( socketdir , callback):

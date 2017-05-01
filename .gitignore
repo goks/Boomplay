@@ -90,6 +90,7 @@ ENV/
 
 # music
 *.mp3
+*.dat
 
 unused
 unused/*

@@ -136,6 +136,7 @@
 							# border: 30,30,30,30
 							background_normal: "icons/play.png"
 							background_down: "icons/pause.png"
+							on_press: root.changeScreen()
 						Button:
 							size_hint:0.1,1
 							id: "pause_button"
@@ -260,6 +261,8 @@
 							# border: 30,30,30,30
 							background_normal: "icons/play.png"
 							background_down: "icons/pause.png"
+							on_press: root.changeScreen()
+
 						Button:
 							size_hint:0.1,1
 							id: "pause_button"
@@ -276,6 +279,99 @@
 							orientation:"vertical"
 							size_hint: 0.6,1
 
+
+# Musicplayer gui : https://github.com/JasonHinds13/KVMusicPlayer
+
+<MusicPlayer>:
+	canvas.before:
+		Color:
+			rgba: 0, 0, .1, 1
+		Rectangle:
+			pos: self.pos
+			size: self.size
+	
+	TextInput:
+		id: direct
+		pos: 0,root.top-35
+		size: root.width-200,35
+		hint_text: 'Enter File Location or Leave Empty to Browse'
+	Button:
+		id: searchBtn
+		text: 'Browse'
+		size: 200,35
+		background_color: 0,.5,1,1
+		pos: root.width-200, root.top-35
+		on_release: root.getSongs()
+
+	ScrollView:
+		size_hint: None, None
+		size: root.width, root.height-135
+		pos: 0, 100
+		GridLayout:
+			id: scroll
+			cols: 2
+			spacing: 10
+			size_hint_y: None
+			row_force_default: True
+			row_default_height: 40
+
+	GridLayout:
+		rows: 1
+		pos: 0, 50
+		size: root.width, 50
+		Button:
+			text: '<--'
+			background_color: 0,.5,1,1
+			on_press: root.prevSong()
+		Button:
+			text: '||'
+			id: pauseButton
+			background_color: 0,.5,1,1
+			on_press: root.pauseSong()
+		Button:
+			text: '-->'
+			background_color: 0,.5,1,1
+			on_press: root.nextSong()
+	Button:
+		id: nowplay
+		text: 'Now Playing'
+		pos: 0,0
+		size: root.width, 50
+		background_color: 0,.5,1,1
+
+	Label:
+		id: status
+		text: ''
+		center: root.center
+
+<ChooseFile>:
+
+	canvas.before:
+		Color:
+			rgba: 0, 0, .4, 1
+		Rectangle:
+			pos: self.pos
+			size: self.size
+	BoxLayout:
+		size: root.size
+		pos: root.pos
+		orientation: "vertical"
+		FileChooserIconView:
+			id: filechooser
+
+		BoxLayout:
+			size_hint_y: None
+			height: 30
+			Button:
+				text: "Cancel"
+				background_color: 0,.5,1,1
+				on_release: root.cancel()
+
+			Button:
+				text: "Select Folder"
+				background_color: 0,.5,1,1
+				on_release: root.select(filechooser.path)							
+
 					
-						
-						
+								
+								
