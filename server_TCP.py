@@ -6,5 +6,7 @@ def beginConnection(HOST, PORT,callback):
     serverSocket,clientSocket = core.createSocket(HOST, PORT, callback)
     core.startSend(clientSocket, "test.mp3", callback)
     # serverSocket,clientSocket = core.createSocket(HOST, PORT)
-    core.msgSender( clientSocket,callback )
+    delay = core.calculateDelay( clientSocket,callback )
+    
+def closeSocket(serverSocket):    
     core.closeSocket( serverSocket )

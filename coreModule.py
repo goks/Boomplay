@@ -132,19 +132,11 @@ def playMP3(filedes, callback, type):
 	time.sleep(15)
 	player.pause()
 	callback("software volume: "+audio_get_volume, type)
-	# if sys.platform == 'win32':
-	#			 player.set_hwnd(self.window.handle)
-	#		 else:
-	#			 player.set_xwindow(self.window.xid)
-	# media = instance.media_new(filedes)
-	# player.set_media(media)
-	# p = vlc.MediaPlayer(filedes)
 		#set the player position to be 50% in
 	# player.set_position(50)
 
 	#Reduce the volume to 70%
 	# player.audio_set_volume(100)
-	# p.play()
 
 def msgParser( socketdir , callback):
 	# while(True):
@@ -178,7 +170,7 @@ def msgParser( socketdir , callback):
 			callback( "Quitting!!!",type)
 			break
 		# time.sleep(5)
-def msgSender( socketdir ,callback):
+def calculateDelay( socketdir ,callback):
 	type='server'
 	try:
 		callback("sending beginplay", type)
@@ -201,16 +193,12 @@ def msgSender( socketdir ,callback):
 		delay = abs(delay)
 	except Exception as e:
 		print e
-		callback(e,type) 
-	finally:
-		# t = int(time.default_timer()) + 10
-		# socketdir.send(str(delay*100))
-		# while( int(time.default_timer()) != t ):
-			# time.sleep(0.1)
-			# continue
-		socketdir.send("beginplay")
-		time.sleep(delay)
-		playMP3("test.mp3", callback, type)
-		time.sleep(4)
-		callback("sending quit", type)
-		socketdir.send("quit\n")
+		callback(e,type)
+		return -1
+	return delay
+		# socketdir.send("beginplay")
+		# time.sleep(delay)
+		# playMP3("test.mp3", callback, type)
+		# time.sleep(4)
+		# callback("sending quit", type)
+		# socketdir.send("quit\n")

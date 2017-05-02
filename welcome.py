@@ -17,10 +17,10 @@ import vlc
 from os import listdir, path
 from threading import Thread,Event
 
+
 class tabbedScreen(Screen):
 	"""docstring for tabbedScreen"""
 	def __init__(self, **kwargs):
-		# self.path = './dataset/train'
 		super(tabbedScreen, self).__init__(**kwargs)
 		callback_to_call = self.callback
 		try:
@@ -50,6 +50,7 @@ class tabbedScreen(Screen):
 			return False	
 
 	def callback( self, content, type, callcode=0 ):
+		# prints the message(content) to server/client(type) textbox
 		if(type == "server"):
 			u = self.ids.serverMessageBox.text
 			if (callcode==2):
@@ -65,6 +66,9 @@ class tabbedScreen(Screen):
 		if(callcode == 1):
 			# server waiting for connections
 			self.ids.serverConnectBtn.disabled = True
+		if(callcode == 3):
+			# TCP stream connection established callback
+			pass	
 				
 
 	def beginServerConn(self):
@@ -118,8 +122,10 @@ class tabbedScreen(Screen):
 	def changeScreen(self, *args):
 		#now switch to the screen 1
 		print("Changing screen")
-		self.clear_widgets()
-		self.add_widget( MusicPlayer())
+		print self.ids.tabPanel.tab_list[0]
+		self.ids.tabPanel.switch_to(self.ids.tabPanel.tab_list[0])
+		# self.clear_widgets()
+		# self.add_widget( screenTwo(name = "MusicPlayerScreen"))
 
 class ChooseFile(FloatLayout):
 	select = ObjectProperty(None)
@@ -267,10 +273,20 @@ class MusicPlayer(Widget):
 				self.ids.scroll.add_widget(icon) #Add icon to layout
 				self.ids.scroll.add_widget(btn) #Add btn to layout
 
+	def changeScreen(self):
+		# print("Changing screen to first")
+		self.parent.remove_widget( self )			
+
 		
+class screenTwo(Screen):
+	def __init__(self, **kwargs):
+		super(screenTwo, self).__init__(**kwargs)
+		self.add_widget(MusicPlayer())
+
+
 class BoomplayApp(App):
 	def build(self):
-	   return tabbedScreen() 
+	   return tabbedScreen(name = 'first_screen') 
 		
 
 
