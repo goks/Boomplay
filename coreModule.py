@@ -33,8 +33,9 @@ def showProgress(start, end, callback, type):
 	# sys.stdout.flush()
 	callback(text,type,2)
 
-def startSend(destinationSocket,filename, callback):
+def startSendMp3(destinationSocket,filename, callback):
 	type='server'
+	destinationSocket.send("receiveMp3" + "\n")
 	callback("opening "+filename+'.', type)
 	f = open (filename,"rb") 
 	size = os.fstat(f.fileno()).st_size
@@ -56,9 +57,14 @@ def startSend(destinationSocket,filename, callback):
 	# destinationSocket.send("EOF")	
 	callback("Transfer complete",type)
 
+def sendBeginplay(destinationSocket, callback):
+	type='server'
+	destinationSocket.send("beginplay" + "\n")
+	callback("sent beginplay", type)
+
 def startReceive(destinationSocket,filename, callback):
 	type='client'
-	callback("opening "+filename+'.', type)
+	callback("receiving "+filename+'.', type)
 	f = open (filename,"wb")
 	size=int(destinationSocket.recv(10).split("\n")[0])
 	# callback("size: "+str(size)+'.', type)
@@ -71,9 +77,9 @@ def startReceive(destinationSocket,filename, callback):
 	showProgress(len(fileContent), size,callback, type)
 	partFile = ""
 	waste = ""
-	while len(fileContent)<size:
+	while len(fileContent)<=size:
 		# print partFile
-		# print len(fileContent),type(size),len(fileContent)<size
+		# print len(fileContent),size,len(fileContent)<size
 		fileContent += partFile
 		# count+=1
 		showProgress(len(fileContent), size, callback, type)
@@ -82,7 +88,10 @@ def startReceive(destinationSocket,filename, callback):
 		if(buff > 1024):
 			buff = 1024
 		# print "BUFF: ",buff	
+		if buff==0:
+			break
 		partFile=destinationSocket.recv(buff) 
+	# print(" working 123")	
 	if(len(fileContent) == size):
 		callback("File received matches send size.", type)
 	else:
@@ -93,6 +102,7 @@ def startReceive(destinationSocket,filename, callback):
 	callback("Transfer complete", type)
 	callback(filename + " created.", type)
 	f.close()
+
 
 def createSocket(host,port,callback):
 	print "****Server RUN****"
@@ -129,36 +139,48 @@ def playMP3(filedes, callback, type):
 	player = vlc.MediaPlayer()
 	player.set_mrl(filedes)
 	player.play()
-	time.sleep(15)
+	# time.sleep(15)
 	player.pause()
-	callback("software volume: "+audio_get_volume, type)
+	callback("software volume: "+player.audio_get_volume, type)
 		#set the player position to be 50% in
 	# player.set_position(50)
 
 	#Reduce the volume to 70%
 	# player.audio_set_volume(100)
 
-def msgParser( socketdir , callback):
+def recvFromServer( socketdir , callback):
 	# while(True):
 	type = "client"
 	callback( "checking socket", type)
-	while True:
+	check = True
+	while check:
 		try:
 			msgs = socketdir.recv(100)
 			msgs = msgs.split('\n')
 			for msg in msgs:
 				if not msg:
+					callback("server blocking ",  type)
+					# check = False
 					continue
-				callback( "recvd: " + msg, type)
+				try:	
+					callback( "recvd: \'" +msg+ "'", type)
+				except:
+					callback( "received unknown", type)
+					# check = False
+					# raise
+					break
 				if msg == "beginsync":
 					print str(default_timer())
 					t = str(default_timer()*100)
 					socketdir.send(t)
-				elif msg == "quit":
-					sys.exit()
 				elif msg =="beginplay":				
 					playMP3("final.mp3", callback, type)
+				elif msg == "quit":
+					sys.exit()
+				elif msg == "receiveMp3":
+					startReceive(socketdir,'final.mp3',callback)
 				else:
+					print "received msg"
 					pass
 					# ayachaTime = float(socketdir.recv(13))*1000000000
 					# print ayachaTime
@@ -169,11 +191,19 @@ def msgParser( socketdir , callback):
 		except KeyboardInterrupt:
 			callback( "Quitting!!!",type)
 			break
+		except error, e:
+			# socket.error
+			if e.errno == errno.ECONNRESET:
+				callback( "Disconnected", type)
+				# Handle disconnection -- close & reopen socket etc.	
+				break
+			else:
+				raise	
 		# time.sleep(5)
 def calculateDelay( socketdir ,callback):
 	type='server'
 	try:
-		callback("sending beginplay", type)
+		callback("sending beginsync", type)
 		socketdir.send("beginsync\n")
 		senderTime = default_timer()
 		ayachaTime = socketdir.recv(13)
@@ -195,6 +225,7 @@ def calculateDelay( socketdir ,callback):
 		print e
 		callback(e,type)
 		return -1
+	callback("sync completed", type)
 	return delay
 		# socketdir.send("beginplay")
 		# time.sleep(delay)

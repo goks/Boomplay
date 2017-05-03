@@ -6,7 +6,6 @@ from kivy.uix.button import Button
 from kivy.properties import ObjectProperty
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.popup import Popup
-# from kivy.core.audio import SoundLoader
 
 #local imports
 import network_module as nm
@@ -20,6 +19,9 @@ from threading import Thread,Event
 
 class tabbedScreen(Screen):
 	"""docstring for tabbedScreen"""
+	serverObj = None
+	clientObj = None
+	musicObj = None
 	def __init__(self, **kwargs):
 		super(tabbedScreen, self).__init__(**kwargs)
 		callback_to_call = self.callback
@@ -27,6 +29,9 @@ class tabbedScreen(Screen):
 			self.ids.serverIp.text = nm.get_local_ip()
 		except:
 			self.callback("Connect to a network :/", "server")
+		self.musicObj = screenTwo()
+		self.musicObj.hideWidget()
+		self.add_widget( self.musicObj )
 
 	def validate_ip_address( self, ip ):
 		import socket
@@ -91,7 +96,10 @@ class tabbedScreen(Screen):
 		text = "Trying to bind to "+host+" at "+str(port)+"."
 		self.callback(text , "server")
 		# sm.beginConnection(host,port,callback_to_call)
-		t = Thread( target = sm.beginConnection, args=(host,port,callback_to_call))
+		self.serverObj = sm.serverTcp(callback_to_call)
+		#bind serverobj to musicplayer
+		self.musicObj.bindServerobj(self.serverObj)
+		t = Thread( target = self.serverObj.beginConnection, args=(host,port))
 		t.daemon = True
 		t.start()
 
@@ -115,17 +123,17 @@ class tabbedScreen(Screen):
 			return
 		text = "Trying to connect to "+host+" at "+str(port)+"."
 		self.callback(text , "client")
-		t = Thread( target = cm.beginConnection, args=(host,port,callback_to_call))
+		self.clientObj = cm.clientTcp(callback_to_call)
+		t = Thread( target = self.clientObj.beginConnection, args=(host,port))
 		t.daemon = True
 		t.start()
 
 	def changeScreen(self, *args):
 		#now switch to the screen 1
 		print("Changing screen")
-		print self.ids.tabPanel.tab_list[0]
-		self.ids.tabPanel.switch_to(self.ids.tabPanel.tab_list[0])
+		self.musicObj.showWidget()
 		# self.clear_widgets()
-		# self.add_widget( screenTwo(name = "MusicPlayerScreen"))
+		
 
 class ChooseFile(FloatLayout):
 	select = ObjectProperty(None)
@@ -138,11 +146,16 @@ class MusicPlayer(Widget):
 	nowPlaying = '' # Song that is currently playing
 	songs = [] #List to hold songs from music directory
 	player = '' # vlc player instance
-	def __init__(self, **kwargs):
+	serverObj = None
+	def __init__(self,  **kwargs):
 		super(MusicPlayer, self).__init__(**kwargs)	
 		#vlc ready
 		self.player = vlc.MediaPlayer()
 		self.getpath()
+
+	def bindServerobj(self, serverObj):
+		self.serverObj = serverObj
+
 
 	def getpath(self):
 		try:
@@ -198,6 +211,11 @@ class MusicPlayer(Widget):
 				# print("TRACK: ", track)
 			# self.nowPlaying = bt.text+'.mp3'
 			self.player.set_mrl(self.directory+track+'.mp3')
+			# run on separate thread to avoid gui hang
+			self.serverObj.serverSendMp3(self.directory+track+'.mp3')
+			# def runOnSeparateThread():
+				# print("HELLLLLLLLOOOOOOOOO")
+			self.serverObj.waitForDelay()
 			self.player.play()
 			self.ids.nowplay.text = track
 	def pauseSong(self):
@@ -274,19 +292,33 @@ class MusicPlayer(Widget):
 				self.ids.scroll.add_widget(btn) #Add btn to layout
 
 	def changeScreen(self):
-		# print("Changing screen to first")
-		self.parent.remove_widget( self )			
+		print("Changing screen to first")
+		# self.parent.remove_widget( self )
+		# print self.y
+		# print self
+		self.ids.rootBox.y = 5000
+		self.y = 5000	
 
 		
 class screenTwo(Screen):
-	def __init__(self, **kwargs):
+	MusicPlayerObj =None
+	def __init__(self,  **kwargs):
 		super(screenTwo, self).__init__(**kwargs)
-		self.add_widget(MusicPlayer())
+		self.MusicPlayerObj = MusicPlayer() 
+		self.add_widget(self.MusicPlayerObj)
+	def hideWidget(self):
+		self.MusicPlayerObj.ids.rootBox.y = 5000
+		self.MusicPlayerObj.y = 5000
+	def showWidget(self):
+		self.MusicPlayerObj.y = 0
+		self.MusicPlayerObj.ids.rootBox.y = 0
+	def bindServerobj(self,serverObj):
+		self.MusicPlayerObj.bindServerobj(serverObj)	
 
 
 class BoomplayApp(App):
 	def build(self):
-	   return tabbedScreen(name = 'first_screen') 
+		return tabbedScreen(name = 'first_screen') 
 		
 
 

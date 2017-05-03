@@ -27,7 +27,7 @@
 
 		TabbedPanelItem:
 			text: 'Server'
-			
+			id: serverTab
 			BoxLayout:
 				orientation: "vertical"
 				size_hint: 1,1
@@ -125,34 +125,43 @@
 					BoxLayout:
 						orientation: "horizontal"
 						size_hint: 1,0.1
-						Button:
-							size_hint:0.1,1
-							id: "rewind_button"
-							# border: 30,30,30,30
-							background_normal: "icons/rewind.png"
-							background_down: "icons/forward.png"		
-						Button:
-							size_hint:0.1,1
-							id: "play_button"
-							# border: 30,30,30,30
-							background_normal: "icons/play.png"
-							background_down: "icons/pause.png"
-							on_press: root.changeScreen()
-						Button:
-							size_hint:0.1,1
-							id: "pause_button"
-							# border: 30,30,30,30
-							background_normal: "icons/pause.png"
-							background_down: "icons/play.png"
-						Button:
-							size_hint:0.1,1
-							id: "forward_button"
-							# border: 30,30,30,30
-							background_normal: "icons/forward.png"
-							background_down: "icons/rewind.png"
+						# Button:
+						# 	size_hint:0.1,1
+						# 	id: "rewind_button"
+						# 	# border: 30,30,30,30
+						# 	background_normal: "icons/rewind.png"
+						# 	background_down: "icons/forward.png"		
+						# Button:
+						# 	size_hint:0.1,1
+						# 	id: "play_button"
+						# 	# border: 30,30,30,30
+						# 	background_normal: "icons/play.png"
+						# 	background_down: "icons/pause.png"
+						# 	on_press: root.changeScreen()
+						# Button:
+						# 	size_hint:0.1,1
+						# 	id: "pause_button"
+						# 	# border: 30,30,30,30
+						# 	background_normal: "icons/pause.png"
+						# 	background_down: "icons/play.png"
+						# Button:
+						# 	size_hint:0.1,1
+						# 	id: "forward_button"
+						# 	# border: 30,30,30,30
+						# 	background_normal: "icons/forward.png"
+						# 	background_down: "icons/rewind.png"
 						BoxLayout:
 							orientation:"vertical"
-							size_hint: 0.6,1
+							size_hint: 0.3,1
+						Button:
+							border: 0,20,20,20
+							size_hint:0.4,1
+							text:"MEDIA PLAYER"
+							# disabled: True
+							on_press: root.changeScreen()
+						BoxLayout:
+							orientation:"vertical"
+							size_hint: 0.3,1
 
 		# ******************Client Screen******************
 
@@ -250,107 +259,116 @@
 					BoxLayout:
 						orientation: "horizontal"
 						size_hint: 1,0.1
-						Button:
-							size_hint:0.1,1
-							id: "rewind_button"
-							# border: 30,30,30,30
-							background_normal: "icons/rewind.png"
-							background_down: "icons/forward.png"		
-						Button:
-							size_hint:0.1,1
-							id: "play_button"
-							# border: 30,30,30,30
-							background_normal: "icons/play.png"
-							background_down: "icons/pause.png"
-							on_press: root.changeScreen()
 
-						Button:
-							size_hint:0.1,1
-							id: "pause_button"
-							# border: 30,30,30,30
-							background_normal: "icons/pause.png"
-							background_down: "icons/play.png"
-						Button:
-							size_hint:0.1,1
-							id: "forward_button"
-							# border: 30,30,30,30
-							background_normal: "icons/forward.png"
-							background_down: "icons/rewind.png"
 						BoxLayout:
 							orientation:"vertical"
-							size_hint: 0.6,1
-		
-		# ******************Music gui swtich tab******************
-
-		TabbedPanelItem:
-			text: "Media player"
-			on_press: root.changeScreen()
+							size_hint: 0.3,1
+						Button:
+							border: 0,20,20,20
+							size_hint:0.4,1
+							text:"MEDIA PLAYER"
+							disabled: True
+						BoxLayout:
+							orientation:"vertical"
+							size_hint: 0.3,1
 
 # Musicplayer gui : https://github.com/JasonHinds13/KVMusicPlayer
 
 <MusicPlayer>:
-	canvas.before:
+	canvas:
 		Color:
 			rgba: 0, 0, .1, 1
+			# rgba:self.color
 		Rectangle:
 			pos: self.pos
 			size: self.size
-	Button:
-		id: backButton
-		pos: 0,root.top-35
-		size: 100, 35
-		background_color: 0,.5,1,1
-		text: "Back"
-		on_release: root.changeScreen()
+	BoxLayout:
+		orientation: "vertical"
+		size: root.width,root.height
+		id: rootBox	
+		BoxLayout:
+			orientation: "horizontal"
+			pos: 0,root.top-35
+			size: root.width,35
+			canvas:
+				Color:
+					rgba: 1, 0, .1, 1
+					# rgba:self.color
+				Rectangle:
+					pos: self.pos
+					size: self.size		
+			Button:
+				id: backButton
+				# pos: 0,root.top-35
+				# size: 100, 35
+				size_hint: 0.2,1
+				background_color: 0,.5,1,1
+				text: "Back"
+				on_release: root.changeScreen()
 
-	TextInput:
-		id: direct
-		pos: 100,root.top-35
-		size: root.width-300,35
-		hint_text: 'Enter File Location or Leave Empty to Browse'
-	Button:
-		id: searchBtn
-		text: 'Browse'
-		size: 200,35
-		background_color: 0,.5,1,1
-		pos: root.width-200, root.top-35
-		on_release: root.getSongs()
+			TextInput:
+				id: direct
+				# pos: 100,root.top-35
+				# size: root.width-300,35
+				size_hint: 0.6,1
+				hint_text: 'Enter File Location or Leave Empty to Browse'
+			Button:
+				id: searchBtn
+				text: 'Browse'
+				# size: 200,35
+				background_color: 0,.5,1,1
+				# pos: root.width-200, root.top-35
+				on_release: root.getSongs()
+				size_hint: 0.2,1
 
-	ScrollView:
-		size_hint: None, None
-		size: root.width, root.height-135
-		pos: 0, 100
-		GridLayout:
-			id: scroll
-			cols: 2
-			spacing: 10
-			size_hint_y: None
-			row_force_default: True
-			row_default_height: 40
 
-	GridLayout:
-		rows: 1
-		pos: 0, 50
-		size: root.width, 50
-		Button:
-			text: '<--'
-			background_color: 0,.5,1,1
-			on_press: root.prevSong()
-		Button:
-			text: '||'
-			id: pauseButton
-			background_color: 0,.5,1,1
-			on_press: root.pauseSong()
-		Button:
-			text: '-->'
-			background_color: 0,.5,1,1
-			on_press: root.nextSong()
-	Button:
-		id: nowplay
-		text: 'Now Playing'
-		pos: 0,0
-		size: root.width, 50
-		background_color: 0,.5,1,1
+		ScrollView:
+			size_hint: None, None
+			size: root.width, root.height-135
+			pos: 0, 100
+			GridLayout:
+				id: scroll
+				cols: 2
+				spacing: 10
+				size_hint_y: None
+				row_force_default: True
+				row_default_height: 40
+
+		# GridLayout:
+		# 	rows: 1
+		# 	pos: 0, 50
+		# 	size: root.width, 50
+		BoxLayout:
+			orientation: 'horizontal'
+			pos:0,50
+			size: root.width, 50
+			Button:
+				text: '<--'
+				background_color: 0,.5,1,1
+				on_press: root.prevSong()
+				size_hint:0.34,1
+			Button:
+				text: '||'
+				id: pauseButton
+				background_color: 0,.5,1,1
+				size_hint:0.34,1
+				on_press: root.pauseSong()
+			Button:
+				text: '-->'
+				size_hint:0.34,1
+				background_color: 0,.5,1,1
+				on_press: root.nextSong()
+		BoxLayout:
+			orientation: 'horizontal'
+			pos:0,0
+			size: root.width, 50		
+			Button:
+				id: nowplay
+				text: 'Now Playing'
+				# pos: 0,0
+				# size: root.width, 50
+				background_color: 0,.5,1,1
+				size_hint: 1,1
 
 	Label:
 		id: status
