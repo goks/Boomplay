@@ -131,10 +131,9 @@ def write_file(filename, file):
 
 
 
-# ******************** CLIENT MSG PARSER ********************
-def recvFromServer( socketdir , callback):
+# ******************** CLIENT/SERVER LISTENER ********************
+def recvFromServer( socketdir , callback, type = "client"):
 	# while(True):
-	type = "client"
 	filename = ''
 	callback( "checking socket", type)
 	check = True
@@ -171,18 +170,27 @@ def recvFromServer( socketdir , callback):
 
 			elif msg =="beginplay":	
 				# show the filename in nowplaying
-				callback(filename,type,5)			
 				player = playMP3(filename, callback, type)
+				callback(filename,type,5)	
+				callback(player,type,6)	
+
 
 			elif msg =="pause":
 				timestamp = recv_msg(socketdir)
+				if(type=="server"):
+					player = callback( "",type,7)
 				pauseMP3(timestamp, player, callback, type)
+				
 
 			elif msg == 'play':
-				if not player.is_playing():
-					player.play()
+				if(type=="server"):
+					player = callback( "",type,7)
+					if not player.is_playing():
+						player.play()
 
 			elif msg == 'stop':
+				if(type=="server"):
+					player = callback( "",type,7)
 				stopMP3(player, callback, type)
 
 			elif msg == "quit":
@@ -195,16 +203,15 @@ def recvFromServer( socketdir , callback):
 		except KeyboardInterrupt:
 			callback( "Quitting!!!",type)
 			break
-		except error, e:
+		except:
 			# socket.error
-			if e.errno == errno.ECONNRESET:
-				callback( "Disconnected", type)
-				# Handle disconnection -- close & reopen socket etc.	
-				break
-			else:
-				raise	
-		# time.sleep(5)
-
+			# if e.errno == errno.ECONNRESET:
+			# 	callback( "Disconnected", type)
+			# 	# Handle disconnection -- close & reopen socket etc.	
+			# 	break
+			# else:
+				# raise	
+			raise
 # ******************** SERVER MSG SENDER ********************
 
 def startSendMp3(destinationSocket,filename, callback):
@@ -237,8 +244,7 @@ def sendBeginplay(destinationSocket, callback):
 	callback(msg + ' sent', type)
 	send_msg(destinationSocket,msg)
 
-def sendPause(destinationSocket, timestamp, callback):
-	type='server'
+def sendPause(destinationSocket, timestamp, callback, type='server'):
 	#STEP 1
 	msg = "pause"
 	send_msg(destinationSocket,msg)
@@ -248,47 +254,45 @@ def sendPause(destinationSocket, timestamp, callback):
 	send_msg(destinationSocket,msg)
 	callback("timestamp sent", type)
 
-def sendPlay(destinationSocket, callback):
-	type='server'
+def sendPlay(destinationSocket, callback, type='server'):
 	msg = "play"
 	send_msg(destinationSocket,msg)
 	callback(msg + ' sent', type)
 
-def sendStop(destinationSocket, callback):
-	type='server'
+def sendStop(destinationSocket, callback, type='server'):
 	msg = "stop"
 	send_msg(destinationSocket,msg)
 	callback(msg + ' sent', type)
 
 # ******************** DELAY CALCULATOR ********************
 
-def calculateDelay( socketdir ,callback):
-	type='server'
-	try:
-		msg = "beginsync"
-		send_msg(socketdir,msg)
-		callback(msg + ' sent', type)
+def calculateDelay( socketdir ,callback,type='server'):
+	# try:
+	msg = "beginsync"
+	send_msg(socketdir,msg)
+	callback(msg + ' sent', type)
 
-		senderTime = default_timer()
-		ayachaTime = socketdir.recv(13)
-		receivedtime = default_timer()
-		roundtime = receivedtime - senderTime
-		# appuratheCurrentTime = roundtime/2 + ayachaTime
+	senderTime = default_timer()
+	# ayachaTime = socketdir.recv(13)
+	ayachaTime = recv_msg(socketdir)
+	receivedtime = default_timer()
+	roundtime = receivedtime - senderTime
+	# appuratheCurrentTime = roundtime/2 + ayachaTime
 
-		# print "receiverTime", ayachaTime
-		callback("senderTime: " + str(senderTime),type)
-		# print "appuratheCurrentTime", appuratheCurrentTime
-		callback("roundtime/2: " + str(roundtime/2),type)
+	# print "receiverTime", ayachaTime
+	callback("senderTime: " + str(senderTime),type)
+	# print "appuratheCurrentTime", appuratheCurrentTime
+	callback("roundtime/2: " + str(roundtime/2),type)
 
-		delay = roundtime/2 - 0.02
+	delay = roundtime/2 - 0.02
 
-		callback( "delay: " + str(delay), type)
-		import math
-		delay = abs(delay)
-	except Exception as e:
-		print e
-		callback(e,type)
-		return -1
+	callback( "delay: " + str(delay), type)
+	import math
+	delay = abs(delay)
+	# except Exception as e:
+	# 	print e
+	# 	callback(e,type)
+	# 	return -1
 	callback("sync completed", type)
 	return delay
 		# socketdir.send("beginplay")

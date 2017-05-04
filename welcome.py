@@ -14,7 +14,7 @@ import client_TCP as cm
 import vlc
 
 from os import listdir, path
-from threading import Thread,Event
+from threading import Thread
 
 
 class tabbedScreen(Screen):
@@ -22,6 +22,7 @@ class tabbedScreen(Screen):
 	serverObj = None
 	clientObj = None
 	musicObj = None
+	clientVlcObj = None
 	def __init__(self, **kwargs):
 		super(tabbedScreen, self).__init__(**kwargs)
 		callback_to_call = self.callback
@@ -60,19 +61,19 @@ class tabbedScreen(Screen):
 					u = u.split('\n')[:-1]
 					u = '\n'.join(u)
 				self.ids.serverMessageBox.text = u + '\n' + content
-			else:
+			else: 
 				u = self.ids.clientMessageBox.text
 				if (callcode==2):
 					u = u.split('\n')[:-1]
 					u = '\n'.join(u)
 				self.ids.clientMessageBox.text = u + '\n' + content	
-		if(callcode == 1):
+		elif(callcode == 1):
 			# server waiting for connections
 			self.ids.serverConnectBtn.disabled = True
-		if(callcode == 3):
+		elif(callcode == 3):
 			# TCP stream connection established callback
 			pass
-		if(callcode == 4):
+		elif(callcode == 4):
 			#server received connection
 			self.musicObj = screenTwo()
 			#bind serverobj to musicplayer
@@ -83,9 +84,39 @@ class tabbedScreen(Screen):
 			self.musicObj.hideWidget()
 			self.ids.mediaSwitchAtServer.disabled = False
 
-		if (callcode==5):
+
+		elif (callcode==5):
 			#set nowplaying at client
 			self.ids.nowplayingStatus.text = content
+		elif callcode==6:
+			# At recvFromServer fn on receive beginplay
+			self.clientVlcObj = content	
+			self.callback("clientVlc updated",type)
+		elif callcode==7:
+			self.callback("serverVlc updated",type)
+			return self.musicObj.getPlayer()
+
+	def pauseSongAtClient(self):
+		if not self.clientVlcObj:
+			return
+		if(self.clientVlcObj.is_playing()):
+			self.ids.pauseButton.text = '>'
+			timestamp = str(self.clientVlcObj.get_time())
+			print ("timestamp at Client", timestamp)
+			self.clientObj.clientSendPause(timestamp)
+			self.clientVlcObj.pause()
+			self.clientVlcObj.set_time(int(timestamp))
+		else:
+			self.ids.pauseButton.text = '||'
+			self.clientObj.clientSendPlay()
+			self.clientObj.waitForDelay()
+			self.clientVlcObj.pause()
+			
+	def nextSongAtClient(self):
+		pass
+	def prevSongAtClient(self):	
+		pass
+
 				
 
 	def beginServerConn(self):
@@ -109,10 +140,10 @@ class tabbedScreen(Screen):
 		self.callback(text , "server")
 		# sm.beginConnection(host,port,callback_to_call)
 		self.serverObj = sm.serverTcp(callback_to_call)
-		t = Thread( target = self.serverObj.beginConnection, args=(host,port))
+		t = Thread( target = self.serverObj.beginConnection, args=(host,port), name = "ServerActivityThread")
 		t.daemon = True
 		t.start()
-
+		
 
 	def beginClientConn(self):
 		callback_to_call = self.callback
@@ -134,7 +165,7 @@ class tabbedScreen(Screen):
 		text = "Trying to connect to "+host+" at "+str(port)+"."
 		self.callback(text , "client")
 		self.clientObj = cm.clientTcp(callback_to_call)
-		t = Thread( target = self.clientObj.beginConnection, args=(host,port))
+		t = Thread( target = self.clientObj.beginConnection, args=(host,port), name = "CLientListenerThread")
 		t.daemon = True
 		t.start()
 
@@ -222,8 +253,6 @@ class MusicPlayer(Widget):
 			self.player.set_mrl(self.directory+track+'.mp3')
 			# run on separate thread to avoid gui hang
 			self.serverObj.serverSendMp3(self.directory+track+'.mp3')
-			# def runOnSeparateThread():
-				# print("HELLLLLLLLOOOOOOOOO")
 			self.serverObj.waitForDelay()
 			self.player.play()
 			self.ids.nowplay.text = track
@@ -316,8 +345,8 @@ class MusicPlayer(Widget):
 		# self.parent.remove_widget( self )
 		# print self.y
 		# print self
-		self.ids.rootBox.y = 2000
-		self.y = 2000
+		self.ids.rootBox.y = 1000
+		self.y = 1000
 
 		
 class screenTwo(Screen):
@@ -327,8 +356,8 @@ class screenTwo(Screen):
 		self.MusicPlayerObj = MusicPlayer() 
 		self.add_widget(self.MusicPlayerObj)
 	def hideWidget(self):
-		self.MusicPlayerObj.ids.rootBox.y = 2000
-		self.MusicPlayerObj.y = 2000
+		self.MusicPlayerObj.ids.rootBox.y = 1000
+		self.MusicPlayerObj.y = 1000
 	def showWidget(self):
 		self.MusicPlayerObj.y = 0
 		self.MusicPlayerObj.ids.rootBox.y = 0
@@ -337,6 +366,8 @@ class screenTwo(Screen):
 			
 	def bindServerobj(self,serverObj):
 		self.MusicPlayerObj.bindServerobj(serverObj)	
+	def getPlayer(self):
+		return self.MusicPlayerObj.player
 
 
 class BoomplayApp(App):

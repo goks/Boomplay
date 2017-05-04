@@ -272,19 +272,19 @@
 						Button:
 							text: '<--'
 							background_color: 0,.5,1,1
-							# on_press: root.prevSong()
+							on_press: root.prevSongAtClient()
 							size_hint:0.34,1
 						Button:
 							text: '||'
 							id: pauseButton
 							background_color: 0,.5,1,1
 							size_hint:0.33,1
-							# on_press: root.pauseSong()
+							on_press: root.pauseSongAtClient()
 						Button:
 							text: '-->'
 							size_hint:0.34,1
 							background_color: 0,.5,1,1
-							# on_press: root.nextSong()
+							on_press: root.nextSongAtClient()
 					BoxLayout:
 						orientation: 'horizontal'
 						# pos:0,0
