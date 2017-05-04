@@ -1,0 +1,3 @@
+add this line after imports in vlc.py
+
+ctypes.windll.kernel32.SetDllDirectoryW(None)

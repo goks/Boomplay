@@ -154,10 +154,11 @@
 							orientation:"vertical"
 							size_hint: 0.3,1
 						Button:
+							id: mediaSwitchAtServer
 							border: 0,20,20,20
 							size_hint:0.4,1
 							text:"MEDIA PLAYER"
-							# disabled: True
+							disabled: True
 							on_press: root.changeScreen()
 						BoxLayout:
 							orientation:"vertical"
@@ -241,7 +242,7 @@
 
 				BoxLayout:
 					orientation: "vertical"
-					size_hint: 1,0.7
+					size_hint: 1,0.5
 					# padding: 10
 					spacing: 5
 					# canvas.before:
@@ -256,21 +257,47 @@
 						readonly: True
 						text: "**********CLIENT RUN**********"
 						id: clientMessageBox
-					BoxLayout:
-						orientation: "horizontal"
-						size_hint: 1,0.1
+					# BoxLayout:
+					# 	orientation: "horizontal"
+					# 	size_hint: 1,0.1
+				BoxLayout:
+					orientation: 'vertical'
+					size_hint: 1,0.2
 
-						BoxLayout:
-							orientation:"vertical"
-							size_hint: 0.3,1
+					BoxLayout:
+						orientation: 'horizontal'
+						# pos:0,50
+						# size: root.width, 50
+						size_hint: 1, 0.5
 						Button:
-							border: 0,20,20,20
-							size_hint:0.4,1
-							text:"MEDIA PLAYER"
-							disabled: True
-						BoxLayout:
-							orientation:"vertical"
-							size_hint: 0.3,1
+							text: '<--'
+							background_color: 0,.5,1,1
+							# on_press: root.prevSong()
+							size_hint:0.34,1
+						Button:
+							text: '||'
+							id: pauseButton
+							background_color: 0,.5,1,1
+							size_hint:0.33,1
+							# on_press: root.pauseSong()
+						Button:
+							text: '-->'
+							size_hint:0.34,1
+							background_color: 0,.5,1,1
+							# on_press: root.nextSong()
+					BoxLayout:
+						orientation: 'horizontal'
+						# pos:0,0
+						# size: root.width, 50
+						size_hint: 1, 0.5		
+						Button:
+							id: nowplayingStatus
+							text: 'Now Playing'
+							# pos: 0,0
+							# size: root.width, 50
+							background_color: 0,.5,1,1
+							size_hint: 1,1
+
 
 # Musicplayer gui : https://github.com/JasonHinds13/KVMusicPlayer
 
@@ -333,6 +360,7 @@
 				size_hint_y: None
 				row_force_default: True
 				row_default_height: 40
+			
 
 		# GridLayout:
 		# 	rows: 1

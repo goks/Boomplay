@@ -1,0 +1,3 @@
+python -m PyInstaller --name BoomPlay --icon ..\icons\icon.ico ..\welcome.py
+
+python -m PyInstaller BoomPlay.spec

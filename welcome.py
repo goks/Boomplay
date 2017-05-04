@@ -29,9 +29,6 @@ class tabbedScreen(Screen):
 			self.ids.serverIp.text = nm.get_local_ip()
 		except:
 			self.callback("Connect to a network :/", "server")
-		self.musicObj = screenTwo()
-		self.musicObj.hideWidget()
-		self.add_widget( self.musicObj )
 
 	def validate_ip_address( self, ip ):
 		import socket
@@ -55,25 +52,40 @@ class tabbedScreen(Screen):
 			return False	
 
 	def callback( self, content, type, callcode=0 ):
-		# prints the message(content) to server/client(type) textbox
-		if(type == "server"):
-			u = self.ids.serverMessageBox.text
-			if (callcode==2):
-				u = u.split('\n')[:-1]
-				u = '\n'.join(u)
-			self.ids.serverMessageBox.text = u + '\n' + content
-		else:
-			u = self.ids.clientMessageBox.text
-			if (callcode==2):
-				u = u.split('\n')[:-1]
-				u = '\n'.join(u)
-			self.ids.clientMessageBox.text = u + '\n' + content	
+		if (callcode==0):	
+			# prints the message(content) to server/client(type) textbox
+			if(type == "server"):
+				u = self.ids.serverMessageBox.text
+				if (callcode==2):
+					u = u.split('\n')[:-1]
+					u = '\n'.join(u)
+				self.ids.serverMessageBox.text = u + '\n' + content
+			else:
+				u = self.ids.clientMessageBox.text
+				if (callcode==2):
+					u = u.split('\n')[:-1]
+					u = '\n'.join(u)
+				self.ids.clientMessageBox.text = u + '\n' + content	
 		if(callcode == 1):
 			# server waiting for connections
 			self.ids.serverConnectBtn.disabled = True
 		if(callcode == 3):
 			# TCP stream connection established callback
-			pass	
+			pass
+		if(callcode == 4):
+			#server received connection
+			self.musicObj = screenTwo()
+			#bind serverobj to musicplayer
+			self.musicObj.bindServerobj(self.serverObj)
+			# import time
+			# time.sleep(2)
+			self.add_widget( self.musicObj )
+			self.musicObj.hideWidget()
+			self.ids.mediaSwitchAtServer.disabled = False
+
+		if (callcode==5):
+			#set nowplaying at client
+			self.ids.nowplayingStatus.text = content
 				
 
 	def beginServerConn(self):
@@ -97,8 +109,6 @@ class tabbedScreen(Screen):
 		self.callback(text , "server")
 		# sm.beginConnection(host,port,callback_to_call)
 		self.serverObj = sm.serverTcp(callback_to_call)
-		#bind serverobj to musicplayer
-		self.musicObj.bindServerobj(self.serverObj)
 		t = Thread( target = self.serverObj.beginConnection, args=(host,port))
 		t.daemon = True
 		t.start()
@@ -131,6 +141,7 @@ class tabbedScreen(Screen):
 	def changeScreen(self, *args):
 		#now switch to the screen 1
 		print("Changing screen")
+		self.musicObj.getpath()
 		self.musicObj.showWidget()
 		# self.clear_widgets()
 		
@@ -151,11 +162,9 @@ class MusicPlayer(Widget):
 		super(MusicPlayer, self).__init__(**kwargs)	
 		#vlc ready
 		self.player = vlc.MediaPlayer()
-		self.getpath()
 
 	def bindServerobj(self, serverObj):
 		self.serverObj = serverObj
-
 
 	def getpath(self):
 		try:
@@ -221,10 +230,20 @@ class MusicPlayer(Widget):
 	def pauseSong(self):
 		if(self.player.is_playing()):
 			self.ids.pauseButton.text = '>'
+			timestamp = str(self.player.get_time())
+			print ("timestamp at Server", timestamp)
+			self.serverObj.serverSendPause(timestamp)
+			self.player.pause()
+			self.player.set_time(int(timestamp))
 		else:
 			self.ids.pauseButton.text = '||'
-		self.player.pause()
+			self.serverObj.serverSendPlay()
+			self.serverObj.waitForDelay()
+			self.player.pause()
+
+
 	def nextSong(self):
+		self.serverObj.serverSendStop()
 		if(self.nowPlaying in self.songs):
 			playIndex = self.songs.index(self.nowPlaying)+1
 			if playIndex>len(self.songs)-1:
@@ -233,6 +252,7 @@ class MusicPlayer(Widget):
 		else:
 			print 'fail'			
 	def prevSong(self):
+		self.serverObj.serverSendStop()
 		if(self.nowPlaying in self.songs):
 			playIndex = self.songs.index(self.nowPlaying)-1
 			self.playSong(self.songs[playIndex])
@@ -296,8 +316,8 @@ class MusicPlayer(Widget):
 		# self.parent.remove_widget( self )
 		# print self.y
 		# print self
-		self.ids.rootBox.y = 5000
-		self.y = 5000	
+		self.ids.rootBox.y = 2000
+		self.y = 2000
 
 		
 class screenTwo(Screen):
@@ -307,11 +327,14 @@ class screenTwo(Screen):
 		self.MusicPlayerObj = MusicPlayer() 
 		self.add_widget(self.MusicPlayerObj)
 	def hideWidget(self):
-		self.MusicPlayerObj.ids.rootBox.y = 5000
-		self.MusicPlayerObj.y = 5000
+		self.MusicPlayerObj.ids.rootBox.y = 2000
+		self.MusicPlayerObj.y = 2000
 	def showWidget(self):
 		self.MusicPlayerObj.y = 0
 		self.MusicPlayerObj.ids.rootBox.y = 0
+	def getpath(self):
+		self.MusicPlayerObj.getpath()
+			
 	def bindServerobj(self,serverObj):
 		self.MusicPlayerObj.bindServerobj(serverObj)	
 

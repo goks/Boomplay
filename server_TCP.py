@@ -11,6 +11,7 @@ class serverTcp():
 	callback = False
 	delay = 0
 	player = '' # vlc player instance
+	type = 'server'
 
 	
 	"""docstring for serverTcp"""
@@ -22,6 +23,7 @@ class serverTcp():
 		self.serverSocket,self.clientSocket = core.createSocket(HOST, PORT, self.callback)
 		if self.serverSocket:
 			self.connected = True
+			self.callback("MediaPlayer switch activated", self.type, 4)
 		self.delay = core.calculateDelay( self.clientSocket,self.callback )
 		while True:
 			if self.connected:
@@ -37,9 +39,17 @@ class serverTcp():
 	def serverSendMp3(self,filename):
 		core.startSendMp3(self.clientSocket, filename, self.callback)
 		core.sendBeginplay(self.clientSocket, self.callback)
+	def serverSendPlay(self):
+		core.sendPlay(self.clientSocket,self.callback)
+	def serverSendStop(self):
+		core.sendStop(self.clientSocket,self.callback)	
+	def serverSendPause(self,timestamp):
+		core.sendPause(self.clientSocket,timestamp,self.callback)
 
 	def waitForDelay(self):
 		time.sleep(self.delay)
+
+
 
 	def closeSocket(self):	
 		core.closeSocket( self.serverSocket )

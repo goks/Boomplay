@@ -94,3 +94,6 @@ ENV/
 
 unused
 unused/*
+
+package
+package/*

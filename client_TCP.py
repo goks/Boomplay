@@ -8,6 +8,7 @@ class clientTcp():
 	connected = False
 	callback = None
 	clientSocket = ""
+	type = 'client'
 	"""docstring for clientTcp"""
 	def __init__(self, callback):
 		self.callback = callback		
@@ -19,6 +20,7 @@ class clientTcp():
 		if self.clientSocket:
 			self.callback("Connection successfull.", 'Client')
 			self.connected=True
+			self.callback("Mediaplayer switch activated.",self.type,3 )
 		# core.startReceive(clientSocket, "final.mp3", callback)
 		core.recvFromServer( self.clientSocket, self.callback)
 		# core.closeSocket(clientSocket)
