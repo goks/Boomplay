@@ -41,4 +41,10 @@ class clientTcp():
 	def waitForDelay(self):
 		time.sleep(self.delay)	
 
+	def clientSendNext(self):
+		core.sendNext(self.clientSocket,self.callback, self.type)
+	
+	def clientSendPrevious(self):
+		core.sendPrevious(self.clientSocket,self.callback, self.type)
+
 # main()	

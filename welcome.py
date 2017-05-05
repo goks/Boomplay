@@ -67,12 +67,15 @@ class tabbedScreen(Screen):
 					u = u.split('\n')[:-1]
 					u = '\n'.join(u)
 				self.ids.clientMessageBox.text = u + '\n' + content	
+
 		elif(callcode == 1):
 			# server waiting for connections
 			self.ids.serverConnectBtn.disabled = True
+
 		elif(callcode == 3):
 			# TCP stream connection established callback
 			pass
+
 		elif(callcode == 4):
 			#server received connection
 			self.musicObj = screenTwo()
@@ -84,17 +87,29 @@ class tabbedScreen(Screen):
 			self.musicObj.hideWidget()
 			self.ids.mediaSwitchAtServer.disabled = False
 
-
 		elif (callcode==5):
 			#set nowplaying at client
 			self.ids.nowplayingStatus.text = content
+
 		elif callcode==6:
 			# At recvFromServer fn on receive beginplay
 			self.clientVlcObj = content	
 			self.callback("clientVlc updated",type)
+
 		elif callcode==7:
+			# call from server updating vlc player object
 			self.callback("serverVlc updated",type)
 			return self.musicObj.getPlayer()
+
+		elif callcode==8:
+			# client -> server for prevSong
+			self.musicObj.prevSong()
+
+		elif callcode==9:
+			# client -> server for nextSong
+			self.musicObj.nextSong()
+			
+
 
 	def pauseSongAtClient(self):
 		if not self.clientVlcObj:
@@ -113,9 +128,13 @@ class tabbedScreen(Screen):
 			self.clientVlcObj.pause()
 			
 	def nextSongAtClient(self):
-		pass
+		# initially pause. stops when receive msg from server
+		self.clientVlcObj.pause()
+		self.clientObj.clientSendNext()
 	def prevSongAtClient(self):	
-		pass
+		# initially pause. stops when receive msg from server
+		self.clientVlcObj.pause()
+		self.clientObj.	clientSendPrevious()
 
 				
 
@@ -350,7 +369,7 @@ class MusicPlayer(Widget):
 
 		
 class screenTwo(Screen):
-	MusicPlayerObj =None
+	MusicPlayerObj = None
 	def __init__(self,  **kwargs):
 		super(screenTwo, self).__init__(**kwargs)
 		self.MusicPlayerObj = MusicPlayer() 
@@ -362,14 +381,16 @@ class screenTwo(Screen):
 		self.MusicPlayerObj.y = 0
 		self.MusicPlayerObj.ids.rootBox.y = 0
 	def getpath(self):
-		self.MusicPlayerObj.getpath()
-			
+		self.MusicPlayerObj.getpath()			
 	def bindServerobj(self,serverObj):
 		self.MusicPlayerObj.bindServerobj(serverObj)	
 	def getPlayer(self):
 		return self.MusicPlayerObj.player
-
-
+	def nextSong(self):
+		self.MusicPlayerObj.nextSong()
+	def prevSong(self):
+		self.MusicPlayerObj.prevSong()
+			
 class BoomplayApp(App):
 	def build(self):
 		return tabbedScreen(name = 'first_screen') 

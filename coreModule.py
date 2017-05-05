@@ -185,13 +185,19 @@ def recvFromServer( socketdir , callback, type = "client"):
 			elif msg == 'play':
 				if(type=="server"):
 					player = callback( "",type,7)
-					if not player.is_playing():
-						player.play()
+				if not player.is_playing():
+					player.play()
 
 			elif msg == 'stop':
 				if(type=="server"):
 					player = callback( "",type,7)
 				stopMP3(player, callback, type)
+
+			elif msg == 'previous':
+				callback("", type, 8)	
+
+			elif msg == 'next':
+				callback("", type, 9)
 
 			elif msg == "quit":
 				sys.exit()
@@ -212,7 +218,7 @@ def recvFromServer( socketdir , callback, type = "client"):
 			# else:
 				# raise	
 			raise
-# ******************** SERVER MSG SENDER ********************
+# ********************  MSG SENDER CMDS********************
 
 def startSendMp3(destinationSocket,filename, callback):
 	type='server'
@@ -263,6 +269,17 @@ def sendStop(destinationSocket, callback, type='server'):
 	msg = "stop"
 	send_msg(destinationSocket,msg)
 	callback(msg + ' sent', type)
+
+def sendPrevious(destinationSocket, callback, type='server'):
+	msg = "previous"
+	send_msg(destinationSocket,msg)
+	callback(msg + ' sent', type)
+
+def sendNext(destinationSocket, callback, type='server'):
+	msg = "next"
+	send_msg(destinationSocket,msg)
+	callback(msg + ' sent', type)
+
 
 # ******************** DELAY CALCULATOR ********************
 
