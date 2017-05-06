@@ -6,6 +6,7 @@ from kivy.uix.button import Button
 from kivy.properties import ObjectProperty
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.popup import Popup
+from kivy import resources
 
 #local imports
 import network_module as nm
@@ -14,6 +15,7 @@ import client_TCP as cm
 import vlc
 
 from os import listdir, path
+import sys
 from threading import Thread
 
 
@@ -74,7 +76,8 @@ class tabbedScreen(Screen):
 
 		elif(callcode == 3):
 			# TCP stream connection established callback
-			pass
+			self.ids.nowplayingStatus.text = 'Connected'
+			self.ids.pauseBut.disabled = False
 
 		elif(callcode == 4):
 			#server received connection
@@ -89,6 +92,9 @@ class tabbedScreen(Screen):
 
 		elif (callcode==5):
 			#set nowplaying at client
+			self.ids.pauseBut.text = '||'
+			self.ids.prevBut.disabled = False
+			self.ids.nextBut.disabled = False
 			self.ids.nowplayingStatus.text = content
 
 		elif callcode==6:
@@ -97,10 +103,16 @@ class tabbedScreen(Screen):
 			self.callback("clientVlc updated",type)
 
 		elif callcode==7:
-			# call from server updating vlc player object
-			self.callback("serverVlc updated",type)
-			return self.musicObj.getPlayer()
-
+			if(type=='server'):
+				# call from server updating vlc player object
+				self.callback("serverVlc updated",type)
+				t = self.musicObj.getPlayer()
+				self.musicObj.togglePlayButton(content)
+				# set server pause/play button status
+				return t
+			else:
+				# set client pause/play button status
+				self.ids.pauseBut.text = content
 		elif callcode==8:
 			# client -> server for prevSong
 			self.musicObj.prevSong()
@@ -115,14 +127,14 @@ class tabbedScreen(Screen):
 		if not self.clientVlcObj:
 			return
 		if(self.clientVlcObj.is_playing()):
-			self.ids.pauseButton.text = '>'
+			self.ids.pauseBut.text = '>'
 			timestamp = str(self.clientVlcObj.get_time())
 			print ("timestamp at Client", timestamp)
 			self.clientObj.clientSendPause(timestamp)
 			self.clientVlcObj.pause()
 			self.clientVlcObj.set_time(int(timestamp))
 		else:
-			self.ids.pauseButton.text = '||'
+			self.ids.pauseBut.text = '||'
 			self.clientObj.clientSendPlay()
 			self.clientObj.waitForDelay()
 			self.clientVlcObj.pause()
@@ -166,10 +178,15 @@ class tabbedScreen(Screen):
 
 	def beginClientConn(self):
 		callback_to_call = self.callback
-		host = str(self.ids.serverIp.text)
+		host = str(self.ids.clientIp.text)
+		if host == '':
+			host = str(self.ids.serverIp.text)
 
 		try:
-			port = int(self.ids.serverPort.text)
+			port = self.ids.clientPort.text
+			if port == '':
+				port = self.clientPort.text
+			port = int(port)	
 		except:
 			self.callback("Check port :/", "client")
 			return
@@ -181,6 +198,7 @@ class tabbedScreen(Screen):
 		if not self.validate_port_address( port ):
 			self.callback( "Invalid port address", "client")
 			return
+
 		text = "Trying to connect to "+host+" at "+str(port)+"."
 		self.callback(text , "client")
 		self.clientObj = cm.clientTcp(callback_to_call)
@@ -275,16 +293,17 @@ class MusicPlayer(Widget):
 			self.serverObj.waitForDelay()
 			self.player.play()
 			self.ids.nowplay.text = track
+			self.ids.pauseButtonatServer.text = '||'
 	def pauseSong(self):
 		if(self.player.is_playing()):
-			self.ids.pauseButton.text = '>'
+			self.ids.pauseButtonatServer.text = '>'
 			timestamp = str(self.player.get_time())
 			print ("timestamp at Server", timestamp)
 			self.serverObj.serverSendPause(timestamp)
 			self.player.pause()
 			self.player.set_time(int(timestamp))
 		else:
-			self.ids.pauseButton.text = '||'
+			self.ids.pauseButtonatServer.text = '||'
 			self.serverObj.serverSendPlay()
 			self.serverObj.waitForDelay()
 			self.player.pause()
@@ -390,12 +409,21 @@ class screenTwo(Screen):
 		self.MusicPlayerObj.nextSong()
 	def prevSong(self):
 		self.MusicPlayerObj.prevSong()
-			
+	def togglePlayButton(self, newVal):
+		self.MusicPlayerObj.ids.pauseButtonatServer.text = newVal
 class BoomplayApp(App):
 	def build(self):
 		return tabbedScreen(name = 'first_screen') 
 		
+#FOR SINGLE EXECUTABLE
+def resourcePath():
+    '''Returns path containing content - either locally or in pyinstaller tmp file'''
+    if hasattr(sys, '_MEIPASS'):
+        return path.join(sys._MEIPASS)
+
+    return path.join(path.abspath("."))
 
 
 if __name__ == '__main__':
+	resources.resource_add_path(resourcePath()) #FOR SINGLE EXECUTABLE
 	BoomplayApp().run()

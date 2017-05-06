@@ -97,3 +97,6 @@ unused/*
 
 package
 package/*
+
+MyHiddenImports
+MyHiddenImports/*

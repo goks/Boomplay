@@ -208,6 +208,7 @@
 								size_hint: 0.7, 0.5
 								multiline: False
 								# size: 200,45
+								id: clientIp
 								font_size: 20
 						BoxLayout:
 							orientation: 'horizontal'
@@ -228,6 +229,7 @@
 								size_hint: 0.3, 0.5
 								multiline: False
 								# size: 200,45
+								id: clientPort
 								text: '4446'
 								font_size: 20
 							Button:
@@ -271,20 +273,25 @@
 						size_hint: 1, 0.5
 						Button:
 							text: '<--'
+							id: prevBut
 							background_color: 0,.5,1,1
 							on_press: root.prevSongAtClient()
 							size_hint:0.34,1
+							disabled: True
 						Button:
-							text: '||'
-							id: pauseButton
+							text: '[\'_\']'
+							id: pauseBut
 							background_color: 0,.5,1,1
 							size_hint:0.33,1
 							on_press: root.pauseSongAtClient()
+							disabled: True
 						Button:
 							text: '-->'
+							id: nextBut
 							size_hint:0.34,1
 							background_color: 0,.5,1,1
 							on_press: root.nextSongAtClient()
+							disabled: True
 					BoxLayout:
 						orientation: 'horizontal'
 						# pos:0,0
@@ -292,7 +299,7 @@
 						size_hint: 1, 0.5		
 						Button:
 							id: nowplayingStatus
-							text: 'Now Playing'
+							text: 'No Connection'
 							# pos: 0,0
 							# size: root.width, 50
 							background_color: 0,.5,1,1
@@ -377,7 +384,7 @@
 				size_hint:0.34,1
 			Button:
 				text: '||'
-				id: pauseButton
+				id: pauseButtonatServer
 				background_color: 0,.5,1,1
 				size_hint:0.34,1
 				on_press: root.pauseSong()

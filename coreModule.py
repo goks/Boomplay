@@ -178,19 +178,25 @@ def recvFromServer( socketdir , callback, type = "client"):
 			elif msg =="pause":
 				timestamp = recv_msg(socketdir)
 				if(type=="server"):
-					player = callback( "",type,7)
+					player = callback( ">",type,7)
+				else:
+					callback( ">",type,7)	
 				pauseMP3(timestamp, player, callback, type)
 				
 
 			elif msg == 'play':
 				if(type=="server"):
-					player = callback( "",type,7)
+					player = callback( "||",type,7)
+				else:
+					callback("||", type,7)	
 				if not player.is_playing():
 					player.play()
 
 			elif msg == 'stop':
 				if(type=="server"):
-					player = callback( "",type,7)
+					player = callback( "|=|",type,7)
+				else:
+					callback( "|=|",type,7)	
 				stopMP3(player, callback, type)
 
 			elif msg == 'previous':
