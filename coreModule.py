@@ -15,7 +15,7 @@ else:
 	# On most other platforms the best timer is time.time()
 	default_timer = time.time
 
-# ******************* PROGRESS BAR FUMCTION ******************
+# ******************* PROGRESS BAR FUNCTION ******************
 
 def showProgress(start, end, callback, type):
 	barLength = 10
@@ -86,7 +86,10 @@ def pauseMP3(timestamp,player, callback, type):
 	callback("offset set", type)
 
 def stopMP3(player, callback, type):
-	player.stop()
+	try:
+		player.stop()
+	except:
+		print("Stop fail at" + type)	
 	callback('. . . ',type)
 	callback("playback stopped", type)	
 	callback('. . . ',type)

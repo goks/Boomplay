@@ -43,6 +43,8 @@ Reference: [Kivy Website](https://kivy.org/docs/guide/packaging-windows.html)
 ### Mode 2: To create a Single Executable
 
 ###### Step 1:
+
+ Do Step 1 above
  
  Uncomment the resourcePath in welcome.py at package-root.Add this line to the main function.
 
@@ -50,15 +52,10 @@ Reference: [Kivy Website](https://kivy.org/docs/guide/packaging-windows.html)
 
 ###### Step 2:
 
-  Do the step 2 above and execute this cmnd.
+    cd package/
+    python -m PyInstaller BoomPlay.spec
 
-    python -m PyInstaller --onefile -y --clean --windowed --name BoomPlay --icon=..\icons\icon.ico --exclude-module _tkinter --exclude-module Tkinter --exclude-module enchant --exclude-module twisted ..\welcome.py
-
-  Do step 4 and 5 above.
-
-###### Step 3:
-
-    
+The exe file is generated in package/dist.    
     
 
 

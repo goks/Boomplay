@@ -95,8 +95,8 @@ ENV/
 unused
 unused/*
 
-package
-package/*
-
 MyHiddenImports
 MyHiddenImports/*
+
+package
+package/*

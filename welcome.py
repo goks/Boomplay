@@ -1,5 +1,6 @@
 from kivy.app import App
 
+from kivy.core.window import Window
 from kivy.uix.widget import Widget
 from kivy.uix.screenmanager import ScreenManager, Screen, SlideTransition
 from kivy.uix.button import Button
@@ -17,6 +18,7 @@ import vlc
 from os import listdir, path
 import sys
 from threading import Thread
+
 
 
 class tabbedScreen(Screen):
@@ -274,7 +276,7 @@ class MusicPlayer(Widget):
 		except:
 			pass
 		finally:
-			# self.nowPlaying = SoundLoader.load(self.directory+bt.text+'.mp3')
+			self.serverObj.serverSendStop()
 			try:
 				# print "firstTry"
 				self.nowPlaying = bt.text+'.mp3'
@@ -411,17 +413,23 @@ class screenTwo(Screen):
 		self.MusicPlayerObj.prevSong()
 	def togglePlayButton(self, newVal):
 		self.MusicPlayerObj.ids.pauseButtonatServer.text = newVal
+
 class BoomplayApp(App):
+	icon = "./icons/icon.ico"
+	title = 'BoomPlay'
+
 	def build(self):
+		Window.set_icon(self.icon)
+		Window.set_title(self.title)
 		return tabbedScreen(name = 'first_screen') 
 		
 #FOR SINGLE EXECUTABLE
 def resourcePath():
-    '''Returns path containing content - either locally or in pyinstaller tmp file'''
-    if hasattr(sys, '_MEIPASS'):
-        return path.join(sys._MEIPASS)
+	'''Returns path containing content - either locally or in pyinstaller tmp file'''
+	if hasattr(sys, '_MEIPASS'):
+		return path.join(sys._MEIPASS)
 
-    return path.join(path.abspath("."))
+	return path.join(path.abspath("."))
 
 
 if __name__ == '__main__':
